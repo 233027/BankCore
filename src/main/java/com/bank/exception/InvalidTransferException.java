@@ -1,0 +1,7 @@
+package com.bank.exception;
+
+public class InvalidTransferException extends BankException {
+    public InvalidTransferException(String message) {
+        super(message);
+    }
+}
