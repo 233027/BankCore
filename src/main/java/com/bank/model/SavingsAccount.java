@@ -2,18 +2,24 @@ package com.bank.model;
 
 import com.bank.exception.InsufficientFundsException;
 import com.bank.exception.InvalidAmountException;
+import com.bank.strategy.InterestPolicy;
+import com.bank.strategy.SavingsAccountInterestPolicy;
 import java.math.BigDecimal;
 
 public class SavingsAccount extends BankAccount {
     private final BigDecimal minimumBalance;
 
     public SavingsAccount(String accountNumber, Customer customer, BigDecimal initialBalance, BigDecimal minimumBalance) {
-        super(accountNumber, customer, initialBalance);
+        this(accountNumber, customer, initialBalance, minimumBalance, new SavingsAccountInterestPolicy());
+    }
+
+    public SavingsAccount(String accountNumber, Customer customer, BigDecimal initialBalance, BigDecimal minimumBalance, InterestPolicy interestPolicy) {
+        super(accountNumber, customer, initialBalance, interestPolicy);
         if (minimumBalance == null || minimumBalance.compareTo(BigDecimal.ZERO) < 0) {
-            throw new InvalidAmountException("Minimum bakiye sÃ„Â±nÃ„Â±rÃ„Â± negatif olamaz.");
+            throw new InvalidAmountException("Minimum bakiye sınırı negatif olamaz.");
         }
         if (initialBalance.compareTo(minimumBalance) < 0) {
-            throw new InsufficientFundsException("BaÃ…Å¸langÃ„Â±ÃƒÂ§ bakiyesi minimum bakiye sÃ„Â±nÃ„Â±rÃ„Â±ndan dÃƒÂ¼Ã…Å¸ÃƒÂ¼k olamaz: " + minimumBalance);
+            throw new InsufficientFundsException("Başlangıç bakiyesi minimum bakiye sınırından düşük olamaz: " + minimumBalance);
         }
         this.minimumBalance = minimumBalance;
     }
@@ -23,7 +29,7 @@ public class SavingsAccount extends BankAccount {
         validateActiveAndPositiveAmount(amount);
         BigDecimal remainingBalance = this.balance.subtract(amount);
         if (remainingBalance.compareTo(this.minimumBalance) < 0) {
-            throw new InsufficientFundsException("Tasarruf hesabÃ„Â±nda en az " + minimumBalance + " TL kalmalÃ„Â±dÃ„Â±r.");
+            throw new InsufficientFundsException("Tasarruf hesabında en az " + minimumBalance + " TL kalmalıdır.");
         }
         this.balance = remainingBalance;
     }

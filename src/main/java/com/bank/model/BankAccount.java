@@ -2,7 +2,10 @@ package com.bank.model;
 
 import com.bank.exception.AccountFrozenException;
 import com.bank.exception.InvalidAmountException;
+import com.bank.exception.InvalidInterestDateException;
+import com.bank.strategy.InterestPolicy;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.YearMonth;
 
 public abstract class BankAccount {
@@ -10,22 +13,27 @@ public abstract class BankAccount {
     private final Customer customer;
     protected BigDecimal balance;
     private AccountStatus status;
+    private InterestPolicy interestPolicy;
     private YearMonth lastInterestMonth;
 
-    protected BankAccount(String accountNumber, Customer customer, BigDecimal initialBalance) {
+    protected BankAccount(String accountNumber, Customer customer, BigDecimal initialBalance, InterestPolicy interestPolicy) {
         if (accountNumber == null || accountNumber.isBlank()) {
-            throw new IllegalArgumentException("Hesap numarasÃ„Â± boÃ…Å¸ olamaz.");
+            throw new IllegalArgumentException("Hesap numarası boş olamaz.");
         }
         if (customer == null) {
-            throw new IllegalArgumentException("MÃƒÂ¼Ã…Å¸teri bilgisi boÃ…Å¸ olamaz.");
+            throw new IllegalArgumentException("Müşteri bilgisi boş olamaz.");
         }
         if (initialBalance == null || initialBalance.compareTo(BigDecimal.ZERO) < 0) {
-            throw new InvalidAmountException("BaÃ…Å¸langÃ„Â±ÃƒÂ§ bakiyesi negatif olamaz.");
+            throw new InvalidAmountException("Başlangıç bakiyesi negatif olamaz.");
+        }
+        if (interestPolicy == null) {
+            throw new IllegalArgumentException("Faiz politikası boş olamaz.");
         }
         this.accountNumber = accountNumber;
         this.customer = customer;
         this.balance = initialBalance;
         this.status = AccountStatus.ACTIVE;
+        this.interestPolicy = interestPolicy;
     }
 
     public void deposit(BigDecimal amount) {
@@ -35,16 +43,33 @@ public abstract class BankAccount {
 
     public abstract void withdraw(BigDecimal amount);
 
+    public BigDecimal applyMonthlyInterest(LocalDate date) {
+        if (this.status == AccountStatus.FROZEN) {
+            throw new AccountFrozenException("Dondurulmuş hesaba faiz uygulanamaz: " + accountNumber);
+        }
+        if (date == null) {
+            throw new InvalidInterestDateException("Faiz tarihi boş olamaz.");
+        }
+        YearMonth targetMonth = YearMonth.from(date);
+        if (this.lastInterestMonth != null && !targetMonth.isAfter(this.lastInterestMonth)) {
+            throw new InvalidInterestDateException("Bu ay veya önceki bir ay için zaten faiz uygulanmış: " + targetMonth);
+        }
+        BigDecimal interestAmount = interestPolicy.calculateMonthlyInterest(this.balance);
+        this.balance = this.balance.add(interestAmount);
+        this.lastInterestMonth = targetMonth;
+        return interestAmount;
+    }
+
     public void freeze() {
         this.status = AccountStatus.FROZEN;
     }
 
     protected void validateActiveAndPositiveAmount(BigDecimal amount) {
         if (this.status == AccountStatus.FROZEN) {
-            throw new AccountFrozenException("Hesap dondurulmuÃ…Å¸ durumda, iÃ…Å¸lem yapÃ„Â±lamaz: " + accountNumber);
+            throw new AccountFrozenException("Hesap dondurulmuş durumda, işlem yapılamaz: " + accountNumber);
         }
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new InvalidAmountException("Ã„Â°Ã…Å¸lem tutarÃ„Â± sÃ„Â±fÃ„Â±rdan bÃƒÂ¼yÃƒÂ¼k olmalÃ„Â±dÃ„Â±r.");
+            throw new InvalidAmountException("İşlem tutarı sıfırdan büyük olmalıdır.");
         }
     }
 
@@ -52,6 +77,7 @@ public abstract class BankAccount {
     public Customer getCustomer() { return customer; }
     public BigDecimal getBalance() { return balance; }
     public AccountStatus getStatus() { return status; }
+    public InterestPolicy getInterestPolicy() { return interestPolicy; }
+    public void setInterestPolicy(InterestPolicy interestPolicy) { this.interestPolicy = interestPolicy; }
     public YearMonth getLastInterestMonth() { return lastInterestMonth; }
-    public void setLastInterestMonth(YearMonth lastInterestMonth) { this.lastInterestMonth = lastInterestMonth; }
 }
