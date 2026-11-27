@@ -20,7 +20,7 @@ public class CurrentAccount extends BankAccount {
         validateActiveAndPositiveAmount(amount);
         BigDecimal maxWithdrawable = this.balance.add(this.overdraftLimit);
         if (amount.compareTo(maxWithdrawable) > 0) {
-            throw new InsufficientFundsException("Vadesiz hesap limiti yetersiz. Ã‡ekilebilecek maksimum tutar: " + maxWithdrawable);
+            throw new InsufficientFundsException("Vadesiz hesap limiti yetersiz. Ãƒâ€¡ekilebilecek maksimum tutar: " + maxWithdrawable);
         }
         this.balance = this.balance.subtract(amount);
     }

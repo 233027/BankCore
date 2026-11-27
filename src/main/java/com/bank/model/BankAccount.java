@@ -14,13 +14,13 @@ public abstract class BankAccount {
 
     protected BankAccount(String accountNumber, Customer customer, BigDecimal initialBalance) {
         if (accountNumber == null || accountNumber.isBlank()) {
-            throw new IllegalArgumentException("Hesap numarasÄ± boÅŸ olamaz.");
+            throw new IllegalArgumentException("Hesap numarasÃ„Â± boÃ…Å¸ olamaz.");
         }
         if (customer == null) {
-            throw new IllegalArgumentException("MÃ¼ÅŸteri bilgisi boÅŸ olamaz.");
+            throw new IllegalArgumentException("MÃƒÂ¼Ã…Å¸teri bilgisi boÃ…Å¸ olamaz.");
         }
         if (initialBalance == null || initialBalance.compareTo(BigDecimal.ZERO) < 0) {
-            throw new InvalidAmountException("BaÅŸlangÄ±Ã§ bakiyesi negatif olamaz.");
+            throw new InvalidAmountException("BaÃ…Å¸langÃ„Â±ÃƒÂ§ bakiyesi negatif olamaz.");
         }
         this.accountNumber = accountNumber;
         this.customer = customer;
@@ -41,10 +41,10 @@ public abstract class BankAccount {
 
     protected void validateActiveAndPositiveAmount(BigDecimal amount) {
         if (this.status == AccountStatus.FROZEN) {
-            throw new AccountFrozenException("Hesap dondurulmuÅŸ durumda, iÅŸlem yapÄ±lamaz: " + accountNumber);
+            throw new AccountFrozenException("Hesap dondurulmuÃ…Å¸ durumda, iÃ…Å¸lem yapÃ„Â±lamaz: " + accountNumber);
         }
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new InvalidAmountException("Ä°ÅŸlem tutarÄ± sÄ±fÄ±rdan bÃ¼yÃ¼k olmalÄ±dÄ±r.");
+            throw new InvalidAmountException("Ã„Â°Ã…Å¸lem tutarÃ„Â± sÃ„Â±fÃ„Â±rdan bÃƒÂ¼yÃƒÂ¼k olmalÃ„Â±dÃ„Â±r.");
         }
     }
 

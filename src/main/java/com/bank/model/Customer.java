@@ -7,13 +7,13 @@ public class Customer {
 
     public Customer(String customerId, String fullName, String email) {
         if (customerId == null || customerId.isBlank()) {
-            throw new IllegalArgumentException("MÃ¼ÅŸteri ID boÅŸ olamaz.");
+            throw new IllegalArgumentException("MÃƒÂ¼Ã…Å¸teri ID boÃ…Å¸ olamaz.");
         }
         if (fullName == null || fullName.isBlank()) {
-            throw new IllegalArgumentException("MÃ¼ÅŸteri adÄ± boÅŸ olamaz.");
+            throw new IllegalArgumentException("MÃƒÂ¼Ã…Å¸teri adÃ„Â± boÃ…Å¸ olamaz.");
         }
         if (email == null || !email.contains("@")) {
-            throw new IllegalArgumentException("GeÃ§erli bir e-posta adresi giriniz.");
+            throw new IllegalArgumentException("GeÃƒÂ§erli bir e-posta adresi giriniz.");
         }
         this.customerId = customerId;
         this.fullName = fullName;
